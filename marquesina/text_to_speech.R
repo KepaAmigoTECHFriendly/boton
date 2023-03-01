@@ -75,47 +75,55 @@ for(i in 1:nrow(df_parada)){
 # RECOGIDA DE TIEMPOS DE LLEGADA EN ATRIBUTOS DE ACTIVO PARADA
 # ------------------------------------------------------------------------------
 keys <- URLencode(c("tiempo_llegada_linea_1,tiempo_llegada_linea_2,tiempo_llegada_linea_3,parada_destino_linea1,parada_destino_linea2,parada_destino_linea3"))
-for(i in 1:nrow(df_audio)){
 
-  # 1) RECOGIDA DE ATRIBUTOS ACTIVO TIPO PARADA
-  posicion_id <- match(atributo_id_audio[i],atributo_id_parada)
-  id_activo <- ids_df_parada[posicion_id]
+while(1){
   
-  
-  url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/ASSET/",id_activo,"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
-  peticion <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
-  # Tratamiento datos. De raw a dataframe
-  df <- jsonlite::fromJSON(rawToChar(peticion$content))
-  df <- as.data.frame(df)
-  
-  
-  posicion_tiempos <- grep("tiempo",df$key)
-  posicion_destinos <- grep("destino",df$key)
-  
-  
-  # 2) GENERACIÓN TEXTO
-  
-  texto <- ""
-  for(j in 1:length(posicion_destinos)){
-    numero_línea <- as.numeric(gsub(".*?([0-9]+).*", "\\1", df$key[posicion_destinos[j]]))
-    parada_destino <- df$value[posicion_destinos[j]]
-    tiempo <- df$value[posicion_tiempos[j]]
+  for(i in 1:nrow(df_audio)){
     
-    texto <- paste(texto, "Línea ",numero_línea," ",parada_destino," ", tiempo, ". ", sep = "")
+    # 1) RECOGIDA DE ATRIBUTOS ACTIVO TIPO PARADA
+    posicion_id <- match(atributo_id_audio[i],atributo_id_parada)
+    id_activo <- ids_df_parada[posicion_id]
+    
+    
+    url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/ASSET/",id_activo,"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
+    peticion <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
+    # Tratamiento datos. De raw a dataframe
+    df <- jsonlite::fromJSON(rawToChar(peticion$content))
+    df <- as.data.frame(df)
+    
+    
+    posicion_tiempos <- grep("tiempo",df$key)
+    posicion_destinos <- grep("destino",df$key)
+    
+    
+    # 2) GENERACIÓN TEXTO
+    
+    texto <- ""
+    for(j in 1:length(posicion_destinos)){
+      numero_línea <- as.numeric(gsub(".*?([0-9]+).*", "\\1", df$key[posicion_destinos[j]]))
+      parada_destino <- df$value[posicion_destinos[j]]
+      tiempo <- df$value[posicion_tiempos[j]]
+      
+      texto <- paste(texto, "Línea ",numero_línea," ",parada_destino," ", tiempo, ". ", sep = "")
+    }
+    
+    
+    
+    # 3) ESCRITURA EN ATRIBUTO DE DISPOSITIVO marquesina_audio
+    
+    url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/DEVICE/", ids_df_audio[i], "/SHARED_SCOPE",sep = "")
+    json_envio_plataforma <- paste('{"text2speech":"', texto,'"',
+                                   '}',sep = "")
+    post <- httr::POST(url = url,
+                       add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb),
+                       body = json_envio_plataforma,
+                       verify= FALSE,
+                       encode = "json",verbose()
+    )
+    
   }
   
-  
-  
-  # 3) ESCRITURA EN ATRIBUTO DE DISPOSITIVO marquesina_audio
-  
-  url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/DEVICE/", ids_df_audio[i], "/SHARED_SCOPE",sep = "")
-  json_envio_plataforma <- paste('{"text2speech":"', texto,'"',
-                                 '}',sep = "")
-  post <- httr::POST(url = url,
-                     add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb),
-                     body = json_envio_plataforma,
-                     verify= FALSE,
-                     encode = "json",verbose()
-  )
+  Sys.sleep(60)
   
 }
+
