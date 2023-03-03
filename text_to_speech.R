@@ -100,11 +100,11 @@ while(1){
     
     texto <- ""
     for(j in 1:length(posicion_destinos)){
-      numero_línea <- as.numeric(gsub(".*?([0-9]+).*", "\\1", df$key[posicion_destinos[j]]))
+      numero_linea <- as.numeric(gsub(".*?([0-9]+).*", "\\1", df$key[posicion_destinos[j]]))
       parada_destino <- df$value[posicion_destinos[j]]
       tiempo <- df$value[posicion_tiempos[j]]
       
-      texto <- paste(texto, "Línea ",numero_línea," ",parada_destino," ", tiempo, ". ", sep = "")
+      texto <- paste(texto, "Línea ",numero_linea," ",parada_destino," ", tiempo, ". ", sep = "")
     }
     
     
