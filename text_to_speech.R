@@ -8,7 +8,7 @@ library(lubridate)
 
 
 # ------------------------------------------------------------------------------
-# PETICIÃ“N TOKENs THB
+# PETICIÓN TOKENs THB
 # ------------------------------------------------------------------------------
 
 cuerpo <- '{"username":"kepa@techfriendly.es","password":"kepatech"}'
@@ -96,7 +96,7 @@ while(1){
     posicion_destinos <- grep("destino",df$key)
     
     
-    # 2) GENERACIÃ“N TEXTO
+    # 2) GENERACIÓN TEXTO
     
     texto <- ""
     for(j in 1:length(posicion_destinos)){
@@ -104,7 +104,7 @@ while(1){
       parada_destino <- df$value[posicion_destinos[j]]
       tiempo <- df$value[posicion_tiempos[j]]
       
-      texto <- paste(texto, "LÃ­nea ",numero_linea," ",parada_destino," ", tiempo, ". ", sep = "")
+      texto <- paste(texto, "Línea ",numero_linea," ",parada_destino," ", tiempo, ". ", sep = "")
     }
     
     
