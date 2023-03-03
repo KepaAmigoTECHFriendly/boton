@@ -12,7 +12,7 @@ library(lubridate)
 # ------------------------------------------------------------------------------
 
 cuerpo <- '{"username":"kepa@techfriendly.es","password":"kepatech"}'
-post <- httr::POST(url = "http://plataforma:9090/api/auth/login",
+post <- httr::POST(url = "https://plataforma.plasencia.es/api/auth/login",
                    add_headers("Content-Type"="application/json","Accept"="application/json"),
                    body = cuerpo,
                    verify= FALSE,
@@ -26,8 +26,8 @@ auth_thb <- paste("Bearer",resultado_peticion_token$token)
 # ------------------------------------------------------------------------------
 # GET DISPOSITIVOS TIPO: marquesina_audio
 # ------------------------------------------------------------------------------
-
-url_thb <- "http://plataforma:9090/api/tenant/devices?pageSize=1000&page=0"
+#https://plataforma.plasencia.es
+url_thb <- "https://plataforma.plasencia.es/api/tenant/devices?pageSize=1000&page=0"
 peticion <- GET(url_thb, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
 
 df <- jsonlite::fromJSON(rawToChar(peticion$content))
@@ -39,7 +39,7 @@ atributo_id_audio <- c()
 keys <- URLencode(c("id"))
 for(i in 1:nrow(df_audio)){
   
-  url <- paste("http://plataforma:9090/api/plugins/telemetry/DEVICE/",ids_df_audio[i],"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
+  url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/DEVICE/",ids_df_audio[i],"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
   peticion <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
   # Tratamiento datos. De raw a dataframe
   df <- jsonlite::fromJSON(rawToChar(peticion$content))
@@ -51,7 +51,7 @@ for(i in 1:nrow(df_audio)){
 # GET ACTIVOS TIPO: parada. Objetivo: Relacionar ids
 # ------------------------------------------------------------------------------
 
-url_thb <- "http://plataforma:9090/api/tenant/assets?pageSize=1000&page=0"
+url_thb <- "https://plataforma.plasencia.es/api/tenant/assets?pageSize=1000&page=0"
 peticion <- GET(url_thb, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
 
 df <- jsonlite::fromJSON(rawToChar(peticion$content))
@@ -63,7 +63,7 @@ atributo_id_parada <- c()
 keys <- URLencode(c("id"))
 for(i in 1:nrow(df_parada)){
   
-  url <- paste("http://plataforma:9090/api/plugins/telemetry/ASSET/",ids_df_parada[i],"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
+  url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/ASSET/",ids_df_parada[i],"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
   peticion <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
   # Tratamiento datos. De raw a dataframe
   df <- jsonlite::fromJSON(rawToChar(peticion$content))
@@ -85,7 +85,7 @@ while(1){
     id_activo <- ids_df_parada[posicion_id]
     
     
-    url <- paste("http://plataforma:9090/api/plugins/telemetry/ASSET/",id_activo,"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
+    url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/ASSET/",id_activo,"/values/attributes/SERVER_SCOPE?keys=", keys,sep = "")
     peticion <- GET(url, add_headers("Content-Type"="application/json","Accept"="application/json","X-Authorization"=auth_thb))
     # Tratamiento datos. De raw a dataframe
     df <- jsonlite::fromJSON(rawToChar(peticion$content))
@@ -107,13 +107,14 @@ while(1){
       texto <- paste(texto, "Línea ",numero_linea," ",parada_destino," ", tiempo, ". ", sep = "")
     }
     
-    iconv(texto, to = "UTF-8")
+    texto <- gsub("\\<c3><b3>","ó",texto)
+    texto <- gsub("<ó","ó",texto)
     
     
     
     # 3) ESCRITURA EN ATRIBUTO DE DISPOSITIVO marquesina_audio
     
-    url <- paste("http://plataforma:9090/api/plugins/telemetry/DEVICE/", ids_df_audio[i], "/SHARED_SCOPE",sep = "")
+    url <- paste("https://plataforma.plasencia.es/api/plugins/telemetry/DEVICE/", ids_df_audio[i], "/SHARED_SCOPE",sep = "")
     json_envio_plataforma <- paste('{"text2speech":"', texto,'"',
                                    '}',sep = "")
     post <- httr::POST(url = url,
