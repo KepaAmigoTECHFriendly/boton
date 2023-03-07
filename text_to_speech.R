@@ -78,6 +78,23 @@ keys <- URLencode(c("tiempo_llegada_linea_1,tiempo_llegada_linea_2,tiempo_llegad
 
 while(1){
   
+  
+  # ------------------------------------------------------------------------------
+  # PETICIÓN TOKENs THB
+  # ------------------------------------------------------------------------------
+  
+  cuerpo <- '{"username":"kepa@techfriendly.es","password":"kepatech"}'
+  post <- httr::POST(url = "http://plataforma:9090/api/auth/login",
+                     add_headers("Content-Type"="application/json","Accept"="application/json"),
+                     body = cuerpo,
+                     verify= FALSE,
+                     encode = "json",verbose()
+  )
+  
+  resultado_peticion_token <- httr::content(post)
+  auth_thb <- paste("Bearer",resultado_peticion_token$token)
+  
+  
   for(i in 1:nrow(df_audio)){
     
     # 1) RECOGIDA DE ATRIBUTOS ACTIVO TIPO PARADA
