@@ -143,7 +143,7 @@ while(1){
 
   }
 
-  Sys.sleep(60)
+  Sys.sleep(30)
 
 }
 
