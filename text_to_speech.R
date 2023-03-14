@@ -107,6 +107,8 @@ while(1){
     # Tratamiento datos. De raw a dataframe
     df <- jsonlite::fromJSON(rawToChar(peticion$content))
     df <- as.data.frame(df)
+    
+    df <- df[order(gsub(".*?([0-9]+).*", "\\1", df$key)),]
 
 
     posicion_tiempos <- grep("tiempo",df$key)
@@ -118,8 +120,8 @@ while(1){
     texto <- ""
     for(j in 1:length(posicion_destinos)){
       numero_linea <- as.numeric(gsub(".*?([0-9]+).*", "\\1", df$key[posicion_destinos[j]]))
-      parada_destino <- df$value[posicion_destinos[j]]
-      tiempo <- df$value[posicion_tiempos[j]]
+      parada_destino <- df$value[posicion_destinos[grep(numero_linea,df$key[posicion_destinos])]]
+      tiempo <- df$value[posicion_tiempos[grep(numero_linea,df$key[posicion_tiempos])]]
 
       texto <- paste(texto, "Autobús de Línea ",numero_linea," con destino ",parada_destino," llegará en ", tiempo, ". ", sep = "")
     }
